@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-//Controller 는 문자가 아니라 View(화면 이름)로 인식한다
+//Controller 는 문자가 아니라 View(화면 이름)로 인식한다(화면을 옮기려고 한다.)
 //RestController 는 화면 이름이 아니라 그 자체로 인기
 @RestController
 public class HelloController {
