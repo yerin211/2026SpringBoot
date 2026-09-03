@@ -11,7 +11,7 @@ import java.util.Map;
 @RequestMapping("/posts") //기본 주소값 만들기
 public class PostController {
 
-
+    private SmsNotifier notifier = new SmsNotifier();
 
     @GetMapping
     public String getPosts(@RequestParam(required = false) String keyword) {
@@ -48,8 +48,40 @@ public class PostController {
         response.put("title",title);
         response.put("content",content);
         response.put("message","게시글이 등록되었습니다.");
-        return ResponseEntity.status(HttpStatus.OK).body();
+        //이메일 발송
+        notifier.send(title + " 게시글이 등록되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
         //return "["+title+"] 게시글이 등록되었습니다. 내용 : "+ content;
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody Map<String,Object> request){
+        if(id <= 0){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재할 수 없는 게시글입니다.");
+        }else if (id > 10){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
+        }
+        String title = (String) request.get("title");
+        String content = (String) request.get("content");
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("id",id);
+        response.put("title", title);
+        response.put("content",content);
+        response.put("message","게시글이 수정되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable Long id,@RequestBody Map<String, Object> request){
+        if(id <= 0){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재할 수 없는 게시글입니다.");
+        }else if(id > 10){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
+        }
+        //db에 저장한다 치고
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
     }
 
 

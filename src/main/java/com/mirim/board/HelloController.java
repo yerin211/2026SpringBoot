@@ -31,6 +31,7 @@ public class HelloController {
     public String hello(){
         return "hello";
     }
+
     @GetMapping("/hello")//주소 창에 /hello 추가
     public String hello2(){
        return message;
