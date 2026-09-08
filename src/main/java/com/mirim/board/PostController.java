@@ -11,7 +11,12 @@ import java.util.Map;
 @RequestMapping("/posts") //기본 주소값 만들기
 public class PostController {
 
-    private SmsNotifier notifier = new SmsNotifier();
+    private final Notifier notifier;  //결합도가 높은 이유
+    //UP캐스팅 바뀌지 않도록
+
+    public PostController(Notifier notifier) {
+        this.notifier = notifier;
+    }
 
     @GetMapping
     public String getPosts(@RequestParam(required = false) String keyword) {
