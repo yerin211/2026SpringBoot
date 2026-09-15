@@ -1,47 +1,59 @@
 package com.mirim.board;
 
+import aQute.bnd.annotation.licenses.MPL_2_0;
+import com.mirim.board.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/posts") //기본 주소값 만들기
 public class PostController {
 
-    private final Notifier notifier;  //결합도가 높은 이유
+    private final PostService postService;
+//    private final Notifier notifier;  //결합도가 높은 이유
     //UP캐스팅 바뀌지 않도록
 
-    public PostController(Notifier notifier) {
-        this.notifier = notifier;
+    public PostController(Notifier notifier, PostService postService) {
+        this.postService = postService;
     }
 
     @GetMapping
-    public String getPosts(@RequestParam(required = false) String keyword) {
-        System.out.println("이 요청을 처리하는 PostContorller : "+ System.identityHashCode(this));
+    public ResponseEntity<List<Map<String, Object>>> getPosts(@RequestParam(required = false) String keyword) {
         if(keyword != null) {
-            return keyword + "(으)로 검색한 결과입니다.";
+            List<Map<String, Object>> posts = postService.searchPosts(keyword);
+            return ResponseEntity.ok(posts);
         }
-        return "게시글의 목록입니다.";
+        List<Map<String,Object>> posts = postService.getAllPosts();
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/count")
     public String getPostCount() {
-        return "게시글 개수 : 0개";
+        long postCount = postService.getPostCount();
+        return "게시글 개수 : "+postCount + "개";
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getPost(@PathVariable Long id){
+    public ResponseEntity<?> getPost(@PathVariable Long id){
         // 게시글 번호가 10번보다 크면 게시글이 없는거임
-        if(id > 10 ){
-            //404
-             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
-        }else if(id <= 0 ){
+//        if(id > 10 ){
+//            //404
+//             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");}
+        if(id <= 0 ){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재할 수 없는 게시물입니다.");
         }
-        return ResponseEntity.status(HttpStatus.OK).body(id + "번 게시글 입니다.");
+//        return ResponseEntity.status(HttpStatus.OK).body(id + "번 게시글 입니다.");
+        //Map<String, Object> post = postService.getPost(id);
+        Map<String, Object> post = postService.getPost(id);
+        if(post == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시물입니다.");
+        }
+        return  ResponseEntity.ok(post);
     }
 
     @PostMapping
@@ -49,32 +61,24 @@ public class PostController {
         String title = (String)request.get("title");
         String content = (String) request.get("content");
 
-        //db에다가 데이터를 저장한다고 치고
-        Map<String, Object> response = new HashMap<>();
-        response.put("title",title);
-        response.put("content",content);
-        response.put("message","게시글이 등록되었습니다.");
-        //이메일 발송
-        notifier.send(title + " 게시글이 등록되었습니다.");
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        Map<String, Object> response = postService.createPost(title,content);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
         //return "["+title+"] 게시글이 등록되었습니다. 내용 : "+ content;
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody Map<String,Object> request){
-        if(id <= 0){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재할 수 없는 게시글입니다.");
-        }else if (id > 10){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
-        }
+
+
         String title = (String) request.get("title");
         String content = (String) request.get("content");
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("id",id);
-        response.put("title", title);
-        response.put("content",content);
-        response.put("message","게시글이 수정되었습니다.");
+        Map<String, Object> response = postService.createPost(title,content);
+        if (response == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -82,9 +86,15 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable Long id,@RequestBody Map<String, Object> request){
         if(id <= 0){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재할 수 없는 게시글입니다.");
-        }else if(id > 10){
+        }if(id > 10) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
         }
+
+        boolean deleted = postService.deletePost(id);
+        if(!deleted){
+            return ResponseEntity.status((HttpStatus.NOT_FOUND)).build();
+        }
+
         //db에 저장한다 치고
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
