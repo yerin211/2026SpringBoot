@@ -40,10 +40,6 @@ public class PostController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPost(@PathVariable Long id){
-        // 게시글 번호가 10번보다 크면 게시글이 없는거임
-//        if(id > 10 ){
-//            //404
-//             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");}
         if(id <= 0 ){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("존재할 수 없는 게시물입니다.");
         }
