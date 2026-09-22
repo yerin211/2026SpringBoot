@@ -1,88 +1,16 @@
 package com.mirim.board.repository;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
+import com.mirim.board.Post;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@Repository
-public class  PostRepository {
+public interface PostRepository extends JpaRepository<Post, Long> {
+    //제네릭으로  Post, Long을 사용 <entity, entity가 어떤 타입인지>
+    //7개의 메서드들이 모두 CRUD의 속성이 들어갔는데 그것들은 어디에서든 쓰여서  JpaRepository로 상속 받을 수 있음
 
-    private final JdbcTemplate jdbcTemplate;
-    private final List<Map<String, Object>> posts = new ArrayList<>();
-    private Long nextId = 1L;
+    List<Post> findByTitleContaining(String keyword);
+    //url에 들어가는 제목으로 검색하기 와 같은 것들은 CRUD에 무조건 필요한거 아니기 때문에
+    //Spring Boot에서 지원하는 키워드들을 메소드 이름으로 쓰면 Spring Boot가 그걸 읽어서 알아서 쿼리를 만들어줌
 
-    private final RowMapper<Map<String,Object>> postRowMapper = (rs,rowNum) -> {
-        Map<String,Object> post = new HashMap<>();
-        //rs : ResultSet
-        post.put("id",rs.getLong("id"));
-        post.put("title",rs.getString("title"));
-        post.put("content",rs.getString("content"));
-        return post;
-    };
-
-    public PostRepository(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-
-    public Map<String, Object> save(Map<String, Object>post){
-        post.put("id", nextId++);
-        posts.add(post); //post를 posts에다 저장하기
-        return post;
-
-    }
-
-    //아직 진짜 저장소는 없음
-    //컨트롤러에서 쓰던 가짜 규칙을 옮긴다.
-    public boolean existsById(Long id){
-        return findById(id) != null;
-    }
-    public List<Map<String, Object>> findAll(){
-        String sql = "SELECT * FROM posts";
-        return jdbcTemplate.query(sql,postRowMapper);
-    }
-
-    public Map<String, Object> findById(Long id){
-        //게시글 전체 : posts
-        for(Map<String, Object> post : posts){
-            if(post.get("id").equals(id)){
-                return post;
-            }
-        }
-        return null;
-    }
-
-    public long count(){
-        return posts.size();
-    }
-
-    public List<Map<String, Object>> findByKeyword(String keyword) {
-        List<Map<String, Object>> result = new ArrayList<>();
-
-        //1. 전체 게시글을 순회하면서 keyword 포함하는지 확인
-        for(Map<String, Object> post : posts){
-            String title = (String) post.get("title");
-
-            //2. 포함하면 result에 게시글 정보 추가
-            if(title != null && title.contains(keyword)){
-                result.add(post);
-            }
-        }
-
-        return result;
-    }
-
-    public boolean deleteById(Long id){
-        Map<String, Object> post = findById(id);
-        if(post == null ){
-            return false;
-        }
-        posts.remove(post);
-        return true;
-    }
 }
