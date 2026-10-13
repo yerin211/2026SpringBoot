@@ -1,6 +1,8 @@
 package com.mirim.board;
 
 import aQute.bnd.annotation.licenses.MPL_2_0;
+import com.mirim.board.dto.PostRequest;
+import com.mirim.board.dto.PostResponse;
 import com.mirim.board.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,12 +25,12 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Post>> getPosts(@RequestParam(required = false) String keyword) {
+    public ResponseEntity<List<PostResponse>> getPosts(@RequestParam(required = false) String keyword) {
         if(keyword != null) {
-            List<Post> posts = postService.searchPosts(keyword);
+            List<PostResponse> posts = postService.searchPosts(keyword);
             return ResponseEntity.ok(posts);
         }
-        List<Post> posts = postService.getAllPosts();
+        List<PostResponse> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
 
@@ -45,7 +47,7 @@ public class PostController {
         }
 //        return ResponseEntity.status(HttpStatus.OK).body(id + "번 게시글 입니다.");
         //Map<String, Object> post = postService.getPost(id);
-        Post post = postService.getPost(id);
+        PostResponse post = postService.getPost(id);
         if(post == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시물입니다.");
         }
@@ -53,24 +55,35 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody Map<String, Object> request) {
-        String title = (String)request.get("title");
-        String content = (String) request.get("content");
+    public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
+        //map으로 받아서 아무거나(비번, 이름)으로 다 넣어도 받아줌
+        //엔티티(POST)로 바꾸면 id, 날짜, 조회수 다 직접 써야함
+        String title = request.getTitle();
+        String content = request.getContent();
 
-        Post response = postService.createPost(title,content);
+        PostResponse response = postService.createPost(title,content);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
         //return "["+title+"] 게시글이 등록되었습니다. 내용 : "+ content;
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody Map<String,Object> request){
+    public ResponseEntity<?>
 
 
-        String title = (String) request.get("title");
-        String content = (String) request.get("content");
 
-        Post response = postService.createPost(title,content);
+
+
+
+
+
+    updatePost(@PathVariable Long id, @RequestBody PostRequest request){
+
+
+        String title = request.getTitle();
+        String content =  request.getContent();
+
+        PostResponse response = postService.createPost(title,content);
         if (response == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시글입니다.");
         }

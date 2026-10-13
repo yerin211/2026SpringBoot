@@ -13,11 +13,11 @@ spring:
       path: /h2-console
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: validate #Db에 엔티티는 아무런 영양으로
+    show-sql: true #jpa가 만들어주는 쿼리를 볼 수 있도록(디버 )
     properties:
       hibernate:
-        format_sql: true
+        format_sql: true  #간단하게 쿼리를 보여줌
 #logging:
 # level:
 #   org.springframework.web: DEBUG
