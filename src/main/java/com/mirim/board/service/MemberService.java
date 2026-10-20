@@ -3,7 +3,9 @@ package com.mirim.board.service;
 import com.mirim.board.Member;
 import com.mirim.board.dto.MemberResponse;
 import com.mirim.board.dto.SignupRequest;
+import com.mirim.board.exception.ApiException;
 import com.mirim.board.repository.MemberRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,9 @@ public class MemberService {
         this.passwordEncoder = passwordEncoder;
     }
     public MemberResponse signup(SignupRequest request){
+        if(memberRepository.existsByLoginId(request.getLoginId())){
+            throw new ApiException(HttpStatus.CONFLICT,"이미 사용중인 아이디입니다.");
+        }
         String password = request.getPassword(); //평문 비밀번호
         String encodedPassword = passwordEncoder.encode(password); //암호화된 비밀번호
         Member member = new Member(request.getLoginId(), encodedPassword, request.getName());
@@ -28,7 +33,7 @@ public class MemberService {
     public MemberResponse getMember(Long id){
         Member member = memberRepository.findById(id).orElse(null);
         if(member == null){
-            return null;
+            throw new ApiException(HttpStatus.NOT_FOUND,"존재하지 않는 회원입니다.");
         }
         return MemberResponse.from(member);
     }

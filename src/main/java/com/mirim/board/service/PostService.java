@@ -1,9 +1,16 @@
 package com.mirim.board.service;
 
+import com.mirim.board.Member;
 import com.mirim.board.Notifier;
 import com.mirim.board.Post;
+import com.mirim.board.dto.LoginRequest;
+import com.mirim.board.dto.MemberResponse;
 import com.mirim.board.dto.PostResponse;
+import com.mirim.board.exception.ApiException;
+import com.mirim.board.repository.MemberRepository;
 import com.mirim.board.repository.PostRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,17 +24,21 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final Notifier notifier;
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public PostService(PostRepository postRepository, Notifier notifier){
+    public PostService(PostRepository postRepository, Notifier notifier, MemberRepository memberRepository, PasswordEncoder passwordEncoder){
         this.postRepository = postRepository;
         this.notifier = notifier;
+        this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public PostResponse getPost(Long id){
         //postRepository.existsById(id) == false
         Post post = postRepository.findById(id).orElse(null); //없으면 null 있으면 ㅔㅐㄴㅅ
         if(post == null){
-            return null;
+            throw new ApiException(HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다.");
         }
         return PostResponse.from(post);
 //        if(!postRepository.existsById(id)){
@@ -55,7 +66,7 @@ public class PostService {
         Post post = postRepository.findById(id).orElse(null);
 
         if( post == null ){
-            return null;
+            throw new ApiException(HttpStatus.NOT_FOUND,"존재하지 않는 게시글입니다.");
         }
 
         post.setTitle(title);
@@ -98,5 +109,12 @@ public class PostService {
             responses.add(PostResponse.from(post));
         }
         return responses;
+    }
+    public MemberResponse login(LoginRequest request){
+        Member member = memberRepository.findByLoginId(request.getLoginId()).orElse(null);
+        if(member == null || !passwordEncoder.matches(request.getPassword(),member.getPassword()) ){ //평문, 암호문
+            throw new ApiException(HttpStatus.UNAUTHORIZED,"아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
+        return MemberResponse.from(member);
     }
 }

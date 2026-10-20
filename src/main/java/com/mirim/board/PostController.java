@@ -4,6 +4,7 @@ import aQute.bnd.annotation.licenses.MPL_2_0;
 import com.mirim.board.dto.PostRequest;
 import com.mirim.board.dto.PostResponse;
 import com.mirim.board.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+//import static jdk.jpackage.internal.MacDmgBundler.required;
 
 @RestController
 @RequestMapping("/posts") //기본 주소값 만들기
@@ -26,10 +29,6 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<PostResponse>> getPosts(@RequestParam(required = false) String keyword) {
-        if(keyword != null) {
-            List<PostResponse> posts = postService.searchPosts(keyword);
-            return ResponseEntity.ok(posts);
-        }
         List<PostResponse> posts = postService.getAllPosts();
         return ResponseEntity.ok(posts);
     }
@@ -48,14 +47,11 @@ public class PostController {
 //        return ResponseEntity.status(HttpStatus.OK).body(id + "번 게시글 입니다.");
         //Map<String, Object> post = postService.getPost(id);
         PostResponse post = postService.getPost(id);
-        if(post == null){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 게시물입니다.");
-        }
         return  ResponseEntity.ok(post);
     }
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody PostRequest request) {
+    public ResponseEntity<?> createPost(@Valid @RequestBody PostRequest request) {
         //map으로 받아서 아무거나(비번, 이름)으로 다 넣어도 받아줌
         //엔티티(POST)로 바꾸면 id, 날짜, 조회수 다 직접 써야함
         String title = request.getTitle();
