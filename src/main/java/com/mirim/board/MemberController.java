@@ -6,7 +6,6 @@ import com.mirim.board.dto.MemberResponse;
 import com.mirim.board.dto.SignupRequest;
 import com.mirim.board.exception.ApiException;
 import com.mirim.board.login.SessionConst;
-import com.mirim.board.repository.MemberRepository;
 import com.mirim.board.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -19,7 +18,6 @@ import java.util.Map;
 
 @RestController
 public class MemberController {
-
     private final MemberService memberService;
 
     public MemberController(MemberService memberService) {
@@ -27,35 +25,45 @@ public class MemberController {
     }
 
     @PostMapping("/member")
-    public ResponseEntity<MemberResponse> signup(@Valid @RequestBody SignupRequest request){
+    public ResponseEntity<MemberResponse> signup(@Valid @RequestBody SignupRequest request) {
         MemberResponse created = memberService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping("/members/{id}")
-    public ResponseEntity<MemberResponse> getMember(@Valid @PathVariable Long id){
+    public ResponseEntity<MemberResponse> getMember(@Valid @PathVariable Long id) {
         MemberResponse member = memberService.getMember(id);
         return ResponseEntity.ok(member);
     }
 
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiErrorResponse> handleApiException (ApiException e){
-        ApiErrorResponse body = new ApiErrorResponse(e.getStatus().value(),
-                e.getMessage(),
-                Map.of());
-        return ResponseEntity.status(e.getStatus()).body(body);
-    }
-
     @PostMapping("/login")
-    public ResponseEntity<MemberResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest){
+    public ResponseEntity<MemberResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         MemberResponse member = memberService.login(request);
 
-        //사용자별 보관함
+        // 사용자별 보관함.
         HttpSession session = httpRequest.getSession();
-        //로그인에 성공했으니 번호표 교체
+
+        // 로그인에 성공했으니 번호표 교체
         httpRequest.changeSessionId();
-        //세션에 사용자 pk 저장
+
+        // 사용자 PT 저장
+
         session.setAttribute(SessionConst.LOGIN_MEMBER_ID, member.getId());
         return ResponseEntity.ok(member);
+    }
+
+    @GetMapping("/members/me")
+    public ResponseEntity<MemberResponse> me (HttpSession session){
+        Long memberId = (Long) session.getAttribute(SessionConst.LOGIN_MEMBER_ID);
+        MemberResponse response = memberService.getMember(memberId);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        if(session != null){
+            session.invalidate(); //보관함 자체를 없애기
+        }
+        return ResponseEntity.noContent().build();
     }
 }

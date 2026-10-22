@@ -20,27 +20,27 @@ public class MemberResponse {
     public static MemberResponse from(Member member){
         return new MemberResponse(
                 member.getId(),
-                member.getLoginId(),
+                member.getloginId(),
                 member.getName(),
                 member.getCreatedAt()
 
         );
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public String getName() {
-        return name;
+    public Long getId() {
+        return id;
     }
 
     public String getLoginId() {
         return loginId;
     }
 
-    public Long getId() {
-        return id;
+    public String getName() {
+        return name;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }
 

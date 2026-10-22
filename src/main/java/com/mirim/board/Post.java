@@ -12,6 +12,9 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_id", nullable = false)
+    private Member author;
     @Column(nullable = false, length = 200)
     private String title;
     private String content;
@@ -41,9 +44,14 @@ public class Post {
         return content;
     }
 
-    public Post(String content, String title) {   //우리를 위해서
+    public Member getAuthor() {
+        return author;
+    }
+
+    public Post(String content, String title, Member author) {   //우리를 위해서
         this.content = content;
         this.title = title;
+        this.author = author;
         this.createdAt = LocalDateTime.now();
         this.viewCount = 0L;
     }

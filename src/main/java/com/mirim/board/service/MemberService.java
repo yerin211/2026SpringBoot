@@ -1,6 +1,7 @@
 package com.mirim.board.service;
 
 import com.mirim.board.Member;
+import com.mirim.board.dto.LoginRequest;
 import com.mirim.board.dto.MemberResponse;
 import com.mirim.board.dto.SignupRequest;
 import com.mirim.board.exception.ApiException;

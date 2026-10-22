@@ -12,21 +12,24 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name= "login_id", nullable = false, unique = true, length =  50)
+    @Column(name="login_id", nullable = false, unique = true, length = 50)
     private String loginId;
+
     @Column(nullable = false, length = 100)
     private String password;
+
     @Column(nullable = false, length = 30)
     private String name;
-    @Column(name = "created_at",nullable = false, updatable = false)
+
+    @Column(name="created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    protected Member(){
+    protected Member() {
 
     }
 
-    public Member(String loginId, String password, String name) {
-        this.loginId = loginId;
+    public Member(String loingId, String password, String name) {
+        this.loginId = loingId;
         this.password = password;
         this.name = name;
         this.createdAt = LocalDateTime.now();
@@ -36,7 +39,7 @@ public class Member {
         return id;
     }
 
-    public String getLoginId() {
+    public String getloginId() {
         return loginId;
     }
 
@@ -51,4 +54,6 @@ public class Member {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+
 }

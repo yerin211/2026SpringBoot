@@ -18,4 +18,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     //List<Post> findByContentContaining(String keyword);
     //서버 시작 전에 미리 잘 됬는지 작동해봄
 
+
 }
