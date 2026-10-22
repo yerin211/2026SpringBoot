@@ -26,14 +26,14 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @PostMapping("/members")
+    @PostMapping("/member")
     public ResponseEntity<MemberResponse> signup(@Valid @RequestBody SignupRequest request){
         MemberResponse created = memberService.signup(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @GetMapping("/members/{id}")
-    public ResponseEntity<MemberResponse> getMember(@PathVariable Long id){
+    public ResponseEntity<MemberResponse> getMember(@Valid @PathVariable Long id){
         MemberResponse member = memberService.getMember(id);
         return ResponseEntity.ok(member);
     }
@@ -51,7 +51,7 @@ public class MemberController {
         MemberResponse member = memberService.login(request);
 
         //사용자별 보관함
-        HttpSession session = httpRequest.getSesstion();
+        HttpSession session = httpRequest.getSession();
         //로그인에 성공했으니 번호표 교체
         httpRequest.changeSessionId();
         //세션에 사용자 pk 저장

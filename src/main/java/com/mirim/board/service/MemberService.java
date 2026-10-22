@@ -37,4 +37,12 @@ public class MemberService {
         }
         return MemberResponse.from(member);
     }
+
+     public MemberResponse login(LoginRequest request) {
+        Member member = memberRepository.findByLoginId(request.getLoginId()).orElse(null);
+        if (member == null || !passwordEncoder.matches(request.getPassword(), member.getPassword()))  {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
+        return MemberResponse.from(member);
+    }
 }
