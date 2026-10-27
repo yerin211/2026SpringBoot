@@ -21,12 +21,11 @@ public class Comment {
     @Column(name="created_at",nullable = false,updatable = false)
     private LocalDateTime createdAt;
 
-    public Comment(Long id, String content, Post post, Member author, LocalDateTime createdAt) {
-        this.id = id;
+    public Comment(String content, Post post, Member author) {
         this.content = content;
         this.post = post;
         this.author = author;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
     }
 
     public Comment() {

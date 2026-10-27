@@ -4,6 +4,7 @@ import com.mirim.board.Comment;
 
 import java.time.LocalDateTime;
 
+
 public class CommentResponse {
     private final Long id;
     private final String content;
