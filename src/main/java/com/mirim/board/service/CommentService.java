@@ -26,6 +26,7 @@ public class CommentService {
         this.memberRepository = memberRepository;
     }
 
+
     public CommentResponse createComment(Long postId, CommentRequest request, Long loginMemberId){
         Post post = postRepository.findById(postId).orElse(null);
         if(post == null){

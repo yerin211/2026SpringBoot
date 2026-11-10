@@ -5,10 +5,12 @@ import com.mirim.board.Notifier;
 import com.mirim.board.Post;
 import com.mirim.board.dto.PostResponse;
 import com.mirim.board.exception.ApiException;
+import com.mirim.board.repository.CommentRepository;
 import com.mirim.board.repository.MemberRepository;
 import com.mirim.board.repository.PostRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +20,13 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final Notifier notifier;
+    private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
 
-    public PostService(PostRepository postRepository, Notifier notifier, MemberRepository memberRepository) {
+    public PostService(PostRepository postRepository, Notifier notifier, CommentRepository commentRepository, MemberRepository memberRepository) {
         this.postRepository = postRepository;
         this.notifier = notifier;
+        this.commentRepository = commentRepository;
         this.memberRepository = memberRepository;
     }
 
@@ -60,6 +64,7 @@ public class PostService {
     }
 
     // PostService
+    @Transactional
     public void deletePost(Long id, Long loginMemberId) {
         Post post = postRepository.findById(id).orElse(null);
         if (post == null) {
@@ -68,10 +73,14 @@ public class PostService {
         if (!post.getAuthor().getId().equals(loginMemberId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "본인이 작성한 게시글만 삭제할 수 있습니다.");
         }
+        // 댓글 삭제
+        commentRepository.deleteAll(commentRepository.findByPostId(id));
         postRepository.delete(post);
     }
 
     public List<PostResponse> getAllPosts() {
+        //횡당 관심사 / 공통 관시사 : 이 메서드만 하는 건 아니데 공통적으로 필요한 일
+        //핵심 관심사 : 메서드만의 일
         return toResponses(postRepository.findAllWithAuthor());
     }
 
