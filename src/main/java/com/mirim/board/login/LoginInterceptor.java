@@ -14,6 +14,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if(request.getMethod().equals("GET") && request.getRequestURI().startsWith("/posts")){
+            return true;
             // /posts이고 GET이면 그냥 보여줘라
         }
         //false가 나오면 세션이 없으면 만들지 말아라
