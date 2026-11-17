@@ -3,10 +3,12 @@ package com.mirim.board.aop;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
+@Profile("dev")
 public class ExecutionTimeAspect {
 
     //(..) 파라미터가 상관없다는 뚯

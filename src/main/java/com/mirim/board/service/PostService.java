@@ -8,6 +8,8 @@ import com.mirim.board.exception.ApiException;
 import com.mirim.board.repository.CommentRepository;
 import com.mirim.board.repository.MemberRepository;
 import com.mirim.board.repository.PostRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,10 +80,10 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public List<PostResponse> getAllPosts() {
+    public Page<PostResponse> getAllPosts(Pageable pageable) {
         //횡당 관심사 / 공통 관시사 : 이 메서드만 하는 건 아니데 공통적으로 필요한 일
         //핵심 관심사 : 메서드만의 일
-        return toResponses(postRepository.findAllWithAuthor());
+        return postRepository.findAllWithAuthor(pageable).map(PostResponse::from);
     }
 
     public long getPostCount() {

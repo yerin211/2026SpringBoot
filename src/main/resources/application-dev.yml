@@ -1,0 +1,12 @@
+spring:
+  h2:
+    console:
+      enabled: true # 개발용
+      path: /h2-console
+  jpa:
+    show-sql: true  #개발용
+    #jpa가 만들어주는 쿼리를 볼 수 있도록(디버 )
+    properties:
+      hibernate:
+        format_sql: true #개발용
+        #간단하게 쿼리를 보여줌
