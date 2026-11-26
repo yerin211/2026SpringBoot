@@ -29,7 +29,7 @@ public class PostController {
     @GetMapping
     public ResponseEntity<?> getPosts(@RequestParam(required = false) String keyword, @PageableDefault(size=5, sort = "id",direction = Sort.Direction.DESC) Pageable pageable) {
         if (keyword != null) {
-            List<PostResponse> posts = postService.searchPosts(keyword);
+            Page<PostResponse> posts = postService.searchPosts(keyword, pageable);
             return ResponseEntity.ok(posts);
         }
         Page<PostResponse> posts =postService.getAllPosts(pageable);
@@ -58,11 +58,11 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PostResponse> updatePost(@Valid @PathVariable Long id, @RequestBody PostRequest request) {
+    public ResponseEntity<PostResponse> updatePost(@Valid @PathVariable Long id, @RequestBody PostRequest request, @SessionAttribute(name = SessionConst.LOGIN_MEMBER_ID) Long loginMemberId) {
         String title = request.getTitle();
         String content = request.getContent();
 
-        PostResponse response = postService.updatePost(title, content, id);
+        PostResponse response = postService.updatePost(title, content, id, loginMemberId);
 
         return ResponseEntity.ok(response);
     }
